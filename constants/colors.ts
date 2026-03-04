@@ -1,0 +1,42 @@
+const Colors = {
+  primary: '#c4533a',
+  primaryDark: '#A85828',
+  primaryLight: '#D4804A',
+  accent: '#CB3A4B',
+  accentLight: '#D85A68',
+  terracotta: '#B8685C',
+  warmRed: '#CB3A4B',
+  warmBrown: '#907868',
+  darkBg: '#3A2820',
+  cream: '#F2E6D8',
+  creamDark: '#E8D8C8',
+  cardBg: '#FBF5EE',
+  cardBorder: '#E8D8C8',
+  text: '#3A2820',
+  textSecondary: '#7A6858',
+  textLight: '#A09080',
+  white: '#FFFFFF',
+  shadow: '#C06830',
+  divider: '#E0D0C0',
+  success: '#5A9E6F',
+  warning: '#D4804A',
+  danger: '#CB3A4B',
+  resolved: '#B8A8A0',
+
+  carerFamily: '#C06830',
+  carerCareTeam: '#CB3A4B',
+  carerPrivate: '#D4804A',
+  carerFriend: '#B8685C',
+
+  logMedication: '#C06830',
+  logMeal: '#D4804A',
+  logMedical: '#CB3A4B',
+  logActivity: '#5A9E6F',
+
+  noteFlag: '#CB3A4B',
+  noteMeds: '#C06830',
+  notePattern: '#B8685C',
+  noteGeneral: '#907868',
+};
+
+export default Colors;
