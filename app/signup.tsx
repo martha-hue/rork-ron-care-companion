@@ -1,208 +1,112 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
-  ScrollView,
-  KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Apple, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react-native';
+import { ArrowRight, Heart, Users } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useCarer } from '@/providers/CarerProvider';
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { isTeamStarter, saveAuthMethod } = useCarer();
-
-  const [mode, setMode] = useState<'choose' | 'email'>('choose');
-  const [fullName, setFullName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-
-  const handleAppleSignIn = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    saveAuthMethod('apple');
-    router.push('/your-details');
-  };
-
-  const handleEmailContinue = () => {
-    if (!fullName.trim() || !email.trim() || !phone.trim() || !password.trim()) {
-      Alert.alert('Missing Information', 'Please fill in all fields to continue.');
-      return;
-    }
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    saveAuthMethod('email');
-    router.push('/your-details');
-  };
+  const { isTeamStarter } = useCarer();
 
   const totalSteps = isTeamStarter ? 5 : 3;
   const currentStep = 1;
 
+  const handleContinue = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    router.push('/your-details');
+  };
+
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={[styles.container, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}>
-        <View style={styles.progressRow}>
-          {Array.from({ length: totalSteps }).map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.progressDot,
-                i < currentStep ? styles.progressDotActive : styles.progressDotInactive,
-              ]}
-            />
-          ))}
+    <View style={[styles.container, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 }]}>
+      <View style={styles.progressRow}>
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.progressDot,
+              i < currentStep ? styles.progressDotActive : styles.progressDotInactive,
+            ]}
+          />
+        ))}
+      </View>
+
+      <View style={styles.content}>
+        <View style={styles.illustrationArea}>
+          <View style={styles.iconCircle}>
+            {isTeamStarter ? (
+              <Users color={Colors.primary} size={40} />
+            ) : (
+              <Heart color={Colors.primary} size={40} fill={Colors.primary + '30'} />
+            )}
+          </View>
         </View>
 
-        <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-        >
-          <Text style={styles.heading}>
-            {isTeamStarter ? 'Create Your Account' : 'Join Your Team'}
-          </Text>
-          <Text style={styles.subheading}>
-            {isTeamStarter
-              ? "You're starting a care team. Let's get you set up."
-              : "You've been invited to join a care team."}
-          </Text>
+        <Text style={styles.heading}>
+          {isTeamStarter ? 'Start a Care Team' : 'Join a Care Team'}
+        </Text>
+        <Text style={styles.subheading}>
+          {isTeamStarter
+            ? "You're setting up a shared care hub. It takes about 2 minutes and everything stays on your device."
+            : "You've been invited to join a care team. It takes about 1 minute to get set up."}
+        </Text>
 
-          {mode === 'choose' ? (
-            <View style={styles.choiceArea}>
-              <TouchableOpacity
-                style={styles.appleBtn}
-                onPress={handleAppleSignIn}
-                activeOpacity={0.85}
-                testID="apple-signin-button"
-              >
-                <Apple color={Colors.white} size={22} />
-                <Text style={styles.appleBtnText}>Continue with Apple</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.emailBtn}
-                onPress={() => setMode('email')}
-                activeOpacity={0.85}
-                testID="email-signup-button"
-              >
-                <Mail color={Colors.primary} size={22} />
-                <Text style={styles.emailBtnText}>Sign up with Email</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.featureList}>
+          {isTeamStarter ? (
+            <>
+              <FeatureRow text="Add your patient's details" />
+              <FeatureRow text="Invite family and carers" />
+              <FeatureRow text="Log shifts, meds and daily entries" />
+              <FeatureRow text="Weekly team reviews" />
+            </>
           ) : (
-            <View style={styles.formArea}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Full Name</Text>
-                <TextInput
-                  style={styles.input}
-                  value={fullName}
-                  onChangeText={setFullName}
-                  placeholder="e.g. Gemma Brooks"
-                  placeholderTextColor={Colors.textLight}
-                  autoCapitalize="words"
-                  testID="signup-fullname"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address</Text>
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="you@example.com"
-                  placeholderTextColor={Colors.textLight}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  testID="signup-email"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Phone Number</Text>
-                <TextInput
-                  style={styles.input}
-                  value={phone}
-                  onChangeText={setPhone}
-                  placeholder="+44 7700 000000"
-                  placeholderTextColor={Colors.textLight}
-                  keyboardType="phone-pad"
-                  testID="signup-phone"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <View style={styles.passwordRow}>
-                  <TextInput
-                    style={styles.passwordInput}
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="Create a password"
-                    placeholderTextColor={Colors.textLight}
-                    secureTextEntry={!showPassword}
-                    testID="signup-password"
-                  />
-                  <TouchableOpacity
-                    style={styles.eyeBtn}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff color={Colors.textLight} size={20} />
-                    ) : (
-                      <Eye color={Colors.textLight} size={20} />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                style={styles.continueBtn}
-                onPress={handleEmailContinue}
-                activeOpacity={0.85}
-                testID="email-continue-button"
-              >
-                <Text style={styles.continueBtnText}>Continue</Text>
-                <ArrowRight color={Colors.white} size={20} />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.backLink}
-                onPress={() => setMode('choose')}
-              >
-                <Text style={styles.backLinkText}>Back to sign-in options</Text>
-              </TouchableOpacity>
-            </View>
+            <>
+              <FeatureRow text="Add your name and role" />
+              <FeatureRow text="See the team's shared diary" />
+              <FeatureRow text="Log your own shifts and entries" />
+            </>
           )}
-        </ScrollView>
+        </View>
       </View>
-    </KeyboardAvoidingView>
+
+      <TouchableOpacity
+        style={styles.continueBtn}
+        onPress={handleContinue}
+        activeOpacity={0.85}
+        testID="get-started-button"
+      >
+        <Text style={styles.continueBtnText}>Get Started</Text>
+        <ArrowRight color={Colors.white} size={20} />
+      </TouchableOpacity>
+
+      <Text style={styles.privacyNote}>
+        Your data stays on your device. Nothing is shared without your permission.
+      </Text>
+    </View>
+  );
+}
+
+function FeatureRow({ text }: { text: string }) {
+  return (
+    <View style={styles.featureRow}>
+      <View style={styles.featureDot} />
+      <Text style={styles.featureText}>{text}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     backgroundColor: Colors.cream,
@@ -226,108 +130,55 @@ const styles = StyleSheet.create({
     width: 12,
     backgroundColor: Colors.divider,
   },
-  scrollContent: {
-    paddingBottom: 40,
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  illustrationArea: {
+    alignItems: 'center',
+    marginBottom: 28,
+  },
+  iconCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: Colors.primary + '12',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heading: {
     fontSize: 28,
     fontWeight: '700' as const,
     color: Colors.text,
-    marginBottom: 8,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   subheading: {
     fontSize: 17,
     color: Colors.textSecondary,
-    lineHeight: 24,
-    marginBottom: 36,
+    lineHeight: 26,
+    marginBottom: 32,
+    textAlign: 'center',
   },
-  choiceArea: {
-    gap: 16,
+  featureList: {
+    gap: 14,
+    paddingHorizontal: 8,
   },
-  appleBtn: {
-    backgroundColor: Colors.text,
-    borderRadius: 16,
-    paddingVertical: 18,
+  featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 6,
-      },
-      web: {
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-      },
-    }),
   },
-  appleBtnText: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: Colors.white,
+  featureDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.primary,
   },
-  emailBtn: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    paddingVertical: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-  },
-  emailBtnText: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: Colors.primary,
-  },
-  formArea: {
-    gap: 20,
-  },
-  inputGroup: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.text,
-    marginLeft: 4,
-  },
-  input: {
-    backgroundColor: Colors.white,
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
+  featureText: {
     fontSize: 17,
     color: Colors.text,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-  },
-  passwordInput: {
-    flex: 1,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    fontSize: 17,
-    color: Colors.text,
-  },
-  eyeBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    fontWeight: '500' as const,
   },
   continueBtn: {
     backgroundColor: Colors.primary,
@@ -337,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    marginTop: 8,
+    marginBottom: 16,
     ...Platform.select({
       ios: {
         shadowColor: Colors.primary,
@@ -358,13 +209,10 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: Colors.white,
   },
-  backLink: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  backLinkText: {
-    fontSize: 16,
-    color: Colors.primary,
-    fontWeight: '600' as const,
+  privacyNote: {
+    fontSize: 13,
+    color: Colors.textLight,
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });

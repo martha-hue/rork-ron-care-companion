@@ -165,7 +165,7 @@ export default function WelcomeScreen() {
           activeOpacity={0.85}
           testID="join-team-button"
         >
-          <UserPlus color={Colors.white} size={22} />
+          <UserPlus color={Colors.primary} size={22} />
           <Text style={styles.secondaryBtnText}>Join a Team</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -282,17 +282,19 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   secondaryBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'transparent',
     borderRadius: 16,
     paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
+    borderWidth: 2,
+    borderColor: Colors.primary,
   },
   secondaryBtnText: {
     fontSize: 18,
     fontWeight: '700' as const,
-    color: Colors.white,
+    color: Colors.primary,
   },
 });
