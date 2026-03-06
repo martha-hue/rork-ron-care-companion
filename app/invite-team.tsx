@@ -4,13 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   TextInput,
   ScrollView,
   Platform,
   Alert,
   KeyboardAvoidingView,
-  Keyboard,
+  Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -60,20 +59,34 @@ export default function InviteTeamScreen() {
     setInvitees(invitees.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
-  const handleSendInvites = () => {
-    const validInvitees = invitees.filter((i) => i.name.trim() && i.contact.trim());
-    if (validInvitees.length > 0) {
-      if (Platform.OS !== 'web') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-      Alert.alert(
-        'Invites Sent!',
-        `${validInvitees.length} invite${validInvitees.length > 1 ? 's' : ''} sent to join ${patientName}'s care team.`,
-        [{ text: 'Continue', onPress: finishOnboarding }]
-      );
-    } else {
-      finishOnboarding();
+  const inviteMessage = `Hi! I'm using Ron Care Companion to coordinate care for ${patientName}. It's a shared care diary for the whole team — shifts, medication logs, notes and weekly reviews. Download it from the App Store and we can all stay in sync.`;
+
+  const handleShare = async () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    try {
+      await Share.share({ message: inviteMessage });
+    } catch {
+      // user dismissed share sheet
+    }
+  };
+
+  const handleSendInvites = async () => {
+    const validInvitees = invitees.filter((i) => i.name.trim() && i.contact.trim());
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    if (validInvitees.length > 0) {
+      try {
+        await Share.share({
+          message: `Hi ${validInvitees.map((i) => i.name).join(', ')}! ${inviteMessage}`,
+        });
+      } catch {
+        // user dismissed
+      }
+    }
+    finishOnboarding();
   };
 
   const handleSkip = () => {
@@ -86,19 +99,12 @@ export default function InviteTeamScreen() {
     router.replace('/');
   };
 
-  const handleCopyLink = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    Alert.alert('Link Copied!', `Share this link to invite someone to ${patientName}'s care team.`);
-  };
-
   return (
     <KeyboardAvoidingView
       style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={[styles.container, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.progressRow}>
         {Array.from({ length: totalSteps }).map((_, i) => (
@@ -124,21 +130,21 @@ export default function InviteTeamScreen() {
         </Text>
 
         <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.quickAction} onPress={handleCopyLink} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.quickAction} onPress={handleShare} activeOpacity={0.7}>
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.primary + '15' }]}>
               <Link2 color={Colors.primary} size={20} />
             </View>
-            <Text style={styles.quickActionLabel}>Copy Link</Text>
+            <Text style={styles.quickActionLabel}>Share Link</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.quickAction} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.quickAction} onPress={handleShare} activeOpacity={0.7}>
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.success + '15' }]}>
               <MessageSquare color={Colors.success} size={20} />
             </View>
             <Text style={styles.quickActionLabel}>SMS</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.quickAction} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.quickAction} onPress={handleShare} activeOpacity={0.7}>
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.accent + '15' }]}>
               <Mail color={Colors.accent} size={20} />
             </View>
@@ -205,7 +211,6 @@ export default function InviteTeamScreen() {
         </TouchableOpacity>
       </View>
     </View>
-    </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }

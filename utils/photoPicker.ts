@@ -1,5 +1,17 @@
 import { Alert, ActionSheetIOS, Platform, Linking } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+
+async function copyToDocuments(uri: string): Promise<string> {
+  try {
+    const filename = `ron_photo_${Date.now()}.jpg`;
+    const dest = `${FileSystem.documentDirectory}${filename}`;
+    await FileSystem.copyAsync({ from: uri, to: dest });
+    return dest;
+  } catch {
+    return uri;
+  }
+}
 
 interface PhotoPickerResult {
   uri: string;
@@ -85,9 +97,9 @@ async function launchCamera(): Promise<PhotoPickerResult | null> {
     });
 
     if (!result.canceled && result.assets[0]) {
-      console.log('[PhotoPicker] Camera photo taken:', result.assets[0].uri);
+      const permanentUri = await copyToDocuments(result.assets[0].uri);
       return {
-        uri: result.assets[0].uri,
+        uri: permanentUri,
         width: result.assets[0].width,
         height: result.assets[0].height,
       };
@@ -113,9 +125,9 @@ async function launchLibrary(): Promise<PhotoPickerResult | null> {
     });
 
     if (!result.canceled && result.assets[0]) {
-      console.log('[PhotoPicker] Library photo selected:', result.assets[0].uri);
+      const permanentUri = await copyToDocuments(result.assets[0].uri);
       return {
-        uri: result.assets[0].uri,
+        uri: permanentUri,
         width: result.assets[0].width,
         height: result.assets[0].height,
       };

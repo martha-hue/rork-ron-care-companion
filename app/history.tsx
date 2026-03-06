@@ -21,7 +21,6 @@ import {
 import Colors from '@/constants/colors';
 import { useCare } from '@/providers/CareProvider';
 import { useCarer } from '@/providers/CarerProvider';
-import { CARERS } from '@/mocks/data';
 import { Carer, Shift } from '@/constants/types';
 
 type TabType = 'carers' | 'shifts';
@@ -36,7 +35,6 @@ export default function HistoryScreen() {
 
   const allCarers = useMemo(() => {
     const carerMap = new Map<string, Carer>();
-    CARERS.forEach((c) => carerMap.set(c.id, c));
     carers.forEach((c) => carerMap.set(c.id, c));
     const fromShifts = shifts.map((s) => ({
       id: s.carerId,
