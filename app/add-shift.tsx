@@ -5,12 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   TextInput,
   Alert,
   Platform,
   KeyboardAvoidingView,
-  Keyboard,
   Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -232,15 +230,16 @@ export default function AddShiftScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode="interactive"
           showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets={true}
         >
           <Text style={styles.sectionTitle}>Quick Select Carer</Text>
           <View style={styles.carerGrid}>
@@ -336,7 +335,6 @@ export default function AddShiftScreen() {
             <Text style={styles.saveButtonText}>Save Shift</Text>
           </TouchableOpacity>
         </ScrollView>
-      </TouchableWithoutFeedback>
 
       {Platform.OS !== 'web' && renderPickerModal(
         showStartPicker,
@@ -364,7 +362,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 60,
+    paddingBottom: 120,
   },
   sectionTitle: {
     fontSize: 16,
