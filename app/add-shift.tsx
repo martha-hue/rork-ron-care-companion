@@ -68,7 +68,11 @@ export default function AddShiftScreen() {
       Alert.alert('Missing Info', 'Please select start and end times.');
       return;
     }
-    if (startTime >= endTime) {
+    const toMinutes = (t: string) => {
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    };
+    if (toMinutes(startTime) >= toMinutes(endTime)) {
       Alert.alert('Invalid Times', 'End time must be after start time.');
       return;
     }
@@ -147,6 +151,9 @@ export default function AddShiftScreen() {
           const match = value.match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
           if (value && !match) {
             Alert.alert('Invalid Time', 'Please enter a valid time in HH:MM format (e.g. 09:00).');
+          } else if (value && match) {
+            const [h, m] = value.split(':');
+            onChange(h.padStart(2, '0') + ':' + m.padStart(2, '0'));
           }
         }}
         placeholder="HH:MM"
